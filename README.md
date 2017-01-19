@@ -7,15 +7,15 @@ The purpose of this is to demonstrate the introduction of an OpenShift container
 
 In order to achieve this, we will first install Wildfly/JBoss and deploy a simple web application packaged as a war.  This application has an HTML/JavaScript front end calling restful Java WebServices to display various 'hello world' messages.
 
-![Legacy Application](./plusonelegacy/src/main/webapp/images/graph1.png  "Legacy Application")
+![Legacy Application](./msa/src/main/webapp/images/graph1.png  "Legacy Application")
 
 Once the legacy application is up and running, we will introduce new services implemented as Java services and Bonjour services.  These new services are taken from the OpenShift MSA Demo <https://github.com/redhat-helloworld-msa> and will be deployed in an OpenShift. Once deployed, these services will be integrated in to the front end of the existing legacy application as shown below.
 
-![Hybrid Application](./plusonelegacy/src/main/webapp/images/graph2.png  "Hybrid Application")
+![Hybrid Application](./msa/src/main/webapp/images/graph2.png  "Hybrid Application")
 
 Now that we have the two technologies up and running side by side, we can start to migrate existing legacy portions of the application over to OpenShift.  In this case, we can continue to run the old legacy services in parallel until all consumers have migrated over to the new OpenShift service and then decommission it.
 
-![Hybrid Application](./plusonelegacy/src/main/webapp/images/graph3.png  "Hybrid Application")
+![Hybrid Application](./msa/src/main/webapp/images/graph3.png  "Hybrid Application")
 
 ## Prerequisites
 - **Linux**
@@ -36,13 +36,13 @@ Now that we have the two technologies up and running side by side, we can start 
 ## Download the Demo
 Clone the github repository
 
-	$ git clone https://github.com/rduncan506/plusone.git
+	$ git clone https://github.com/redhat-developer-demos/openshift-next-demo.git
 
 ## Configure Demo
 To install both the legacy and OpenShift portions of the demo, some information is required.  First edit the hosts files and set the IP addresses for the hosts to install the two applications.
 
 ```bassh
-$ vi <plusoneROOT>/ansible/plusonedemo/hosts
+$ vi <nextROOT>/ansible/hosts
 ```
 
 > [legacy-servers]  
@@ -54,16 +54,16 @@ $ vi <plusoneROOT>/ansible/plusonedemo/hosts
 Now modify the following to match your environment
 
 ```bassh
-$ vi <plusoneROOT>/ansible/plusonedemo/group_vars/user-vars.yaml
+$ vi <nextROOT>/ansible/group_vars/user-vars.yaml
 ```
 
 >  \# A temporary directory for any required temporary downloads
 >  \# Must be a directory with read/write permissions  
 >  tmp_dir: ***/tmp***
 >
->  \# The location of the cloned PlusOne github repository
+>  \# The location of the cloned Next github repository
 >  \# Must be a directory with read/write permissions  
->  plusone_home: ***/home/user/development/plusone***
+>  plusone_home: ***/home/user/development/openshift-next-demo***
 >
 >  \# The location to install wildfly
 >  \# Must be a directory with read/write permissions  
@@ -82,21 +82,21 @@ $ vi <plusoneROOT>/ansible/plusonedemo/group_vars/user-vars.yaml
 ## Option 1 - From Binaries
 To make it easier and remove dependencies on build tools, all source has been compiled/packaged and has been downloaded when cloning the github repository above.
 
-### Step 1 - Run Ansible to Install the Legacy Application
-In order to make the install quick and easy, the following Ansible Playbook can be executed to get the legacy application up and running.
+### Step 1 - Run Ansible to Install the Monolithic Application
+In order to make the install quick and easy, the following Ansible Playbook can be executed to get the monolithic application up and running.
 
 The Playbook will perform the following
 
 1. Check if Wildfly exists at the location given above, if so, step 2 is skipped.
 2. Download and install Wildfly (<http://download.jboss.org/wildfly/10.0.0.Final/wildfly-10.0.0.Final.zip>)
-3. Deploy the precompiled war file downloaded as part of the git clone above (<plusoneROOT>/plusonelegacy/bin/plusone-legacy-application.war)
+3. Deploy the precompiled war file downloaded as part of the git clone above (<nextROOT>/monolithic/bin/openshift-next-monolithic.war)
 
 ```bassh
-	$ cd <plusoneROOT>/ansible/plusonedemo
+	$ cd <nextROOT>/ansible
 	$ ansible-playbook -i hosts legacy.yml
 ```
 
-Once the script has completed the Legacy Application will be accessible via <http://legacy-host:8080/plusone-legacy-application/index-legacy.html>
+Once the script has completed the Legacy Application will be accessible via <http://monolithic-host:8080/openshift-next-monolithic>
 
 Also, you may access the Wildfly admin console via <http://legacy-host:9990> and follow the instructions there to add users to enable the console.
 
@@ -110,11 +110,11 @@ The Playbook will perform the following tasks
 1. Check if the ```oc``` exists in the previously configured location, if so, step to is skipped
 2. Download and install the ```oc``` command
 3. Download and start the OpenShift docker image
-4. Deploy 3 pre-built MSA services from <plusoneROOT>/plusonemsa/* using the Dockerfiles and binaries contained within
+4. Deploy 3 pre-built MSA services from <nextROOT>/msa/* using the Dockerfiles and binaries contained within
 5. Expose the services so they are accessible
 
 ```bassh
-	$ cd <plusoneROOT>/ansible/plusonedemo
+	$ cd <nextROOT>/ansible
 	$ ansible-playbook -i hosts openshift.yml
 ```
 
@@ -129,12 +129,12 @@ In addition to the main prerequisites above, the following are required to compi
 - **NPM**
 	- version >= 2.15
 
-### Step 1 - Build and Deploy Legacy Application
+### Step 1 - Build and Deploy Monolithic Application
 
 With Wildfly or JBoss running, execute the following
 
 ```bassh
-$ cd <plusoneROOT>/plusonelegacy
+$ cd <nextROOT>/monolithic
 $ mvn clean install wildfly:deploy
 ```
 
@@ -186,36 +186,34 @@ $ oc expose service bonjour
 $ vi <wildfly_home>/wildfly-10.0.0.Final/welcome-content/services.json
 ```
 
->{  
-  "hello-service": {  
-    "url": "http://localhost:8080/plusone-legacy-application/rest/hello"  
-  },  
-  "hola-move-service": {  
-    "url": "http://hola-helloworld-msa.192.168.223.43.xip.io/api/hola"  
-  },  
-  "hola-legacy-service": {  
-    "url": "http://localhost:8080/plusone-legacy-application/rest/hola"  
-  },  
-  "bonjour-service": {  
-    "url": "http://bonjour-helloworld-msa.192.168.223.43.xip.io/api/bonjour"  
-  },  
-  "ola-service": {  
-    "url": "http://ola-helloworld-msa.192.168.223.43.xip.io/api/ola"  
-  }  
+>{
+  "hello-service": {
+    "url": "http://192.168.223.43:8080/openshift-next-monolithic/rest/hello"
+  },
+  "hola-service": {
+    "url": "http://192.168.223.43:8080/openshift-next-monolithic/rest/hola",
+    "url-move": "http://hola-helloworld-msa.192.168.223.43.xip.io/api/hola",
+    "url-legacy": "http://192.168.223.43:8080/openshift-next-monolithic/rest/hola"
+  },
+  "bonjour-service": {
+    "url": "http://bonjour-helloworld-msa.192.168.223.43.xip.io/api/bonjour"
+  },
+  "ola-service": {
+    "url": "http://ola-helloworld-msa.192.168.223.43.xip.io/api/ola"
+  }
 >}
 
+### Monolithic Application
 
-### Legacy Application
-
-<http://localhost:8080/plusone-legacy-application/index-legacy.html>
+<http://monolithic-host:8080/openshift-next-monolithic/monolithic.html>
 
 ### Hybrid Application
 
-<http://localhost:8080/plusone-legacy-application/index-hybrid.html>
+<http://monolithic-host:8080/openshift-next-monolithic/hybrid.html>
 
-### Migrating
+### Migrating Application
 
-<http://localhost:8080/plusone-legacy-application/index-move.html>
+<http://monolithic-host:8080/openshift-next-monolithic/migrate.html>
 
 ## Troubleshooting
 
