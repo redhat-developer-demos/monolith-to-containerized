@@ -7,15 +7,15 @@ The purpose of this is to demonstrate the introduction of an OpenShift container
 
 In order to achieve this, we will first install Wildfly/JBoss and deploy a simple web application packaged as a war.  This application has an HTML/JavaScript front end calling restful Java WebServices to display various 'hello world' messages.
 
-![Legacy Application](./msa/src/main/webapp/images/graph1.png  "Legacy Application")
+![Legacy Application](./monolithic/src/main/webapp/images/graph1.png  "Legacy Application")
 
 Once the legacy application is up and running, we will introduce new services implemented as Java services and Bonjour services.  These new services are taken from the OpenShift MSA Demo <https://github.com/redhat-helloworld-msa> and will be deployed in an OpenShift. Once deployed, these services will be integrated in to the front end of the existing legacy application as shown below.
 
-![Hybrid Application](./msa/src/main/webapp/images/graph2.png  "Hybrid Application")
+![Hybrid Application](./monolithic/src/main/webapp/images/graph2.png  "Hybrid Application")
 
 Now that we have the two technologies up and running side by side, we can start to migrate existing legacy portions of the application over to OpenShift.  In this case, we can continue to run the old legacy services in parallel until all consumers have migrated over to the new OpenShift service and then decommission it.
 
-![Hybrid Application](./msa/src/main/webapp/images/graph3.png  "Hybrid Application")
+![Hybrid Application](./monolithic/src/main/webapp/images/graph3.png  "Hybrid Application")
 
 ## Prerequisites
 - **Linux**
