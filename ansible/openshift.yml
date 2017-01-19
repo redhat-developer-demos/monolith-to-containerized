@@ -1,0 +1,17 @@
+---
+# This playbook deploys a simple standalone JBoss server. 
+
+- hosts: ocp-servers  
+#
+#  Uncomment and replace <user> below with remote user if running on a remote server
+#
+#  remote_user: <user> 
+#
+  become: no
+  vars_files:
+    - group_vars/user-vars.yml
+    - group_vars/runtime-vars.yml
+
+  roles:
+    - install-msa
+ 

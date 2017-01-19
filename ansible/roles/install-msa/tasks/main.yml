@@ -1,0 +1,80 @@
+---
+
+- name: Check if the openshift client tools are installed - {{oc_command}}
+  stat: path="{{oc_command}}"
+  register: p
+- debug: msg="oc command exists - {{oc_command}}"
+  when: p.stat.isfile is defined and p.stat.isfile
+
+- name: Download and extract oc CLI - {{oc_download_url}}
+  unarchive: 
+    src={{oc_download_url}}
+    dest={{oc_install}}
+    remote_src=yes
+  when: not p.stat.exists
+  
+- name: Install RedHat OpenShift Container Platform {{ocp_version}} using 'oc cluster up'
+  shell: '{{oc_command}} cluster up --host-data-dir={{ocp_data_dir}} --image=registry.access.redhat.com/openshift3/ose --version={{ocp_version}}'
+
+- name: Login in OpenShift
+  shell: "{{oc_command}} login --insecure-skip-tls-verify=true -u {{ ocp_username }} -p {{ ocp_password }} {{ openshift }}"
+  tags:
+    - openshift
+
+- name: Create a new OpenShift project
+  shell: "{{oc_command}} new-project {{ project_name }}"
+  register: command_result
+  failed_when: "'exists' not in command_result.stderr and command_result.rc != 0"
+  changed_when: "'exists' not in command_result.stderr"
+  tags:
+    - openshift
+
+- name: Define OpenShift project
+  shell: "{{oc_command}} project {{ project_name }}"
+  tags:
+    - openshift
+
+- name: Create OpenShift new-build
+  shell: "{{oc_command}} new-build --binary --name={{ item.name }} -l app={{ item.name }}"
+  register: command_result
+  with_items: "{{ msa_projects }}"
+  failed_when: "'exists' not in command_result.stderr and command_result.rc != 0"
+  changed_when: "'exists' not in command_result.stderr"
+  tags:
+    - openshift
+  when: install_msa_application
+  
+# Pause for 20 seconds for the registry to start properly
+- name: Wait a bit for the registry to initialize
+  pause:
+    seconds: 20
+  when: install_msa_application
+
+- name: Build and Deploy OpenShift images from the sources
+  shell: "{{oc_command}} start-build {{ item.name }} --from-dir={{ msa_home }}/{{ item.name }} --follow"
+  with_items: "{{ msa_projects }}"
+  tags:
+    - openshift
+    - build
+  when: install_msa_application
+
+- name: Create OpenShift applications from previously created images
+  shell: "{{oc_command}} new-app {{ item.name }} -l app={{ item.name }}"
+  register: command_result
+  with_items: "{{ msa_projects }}"
+  failed_when: "'exists' not in command_result.stderr and command_result.rc != 0"
+  changed_when: "'exists' not in command_result.stderr"
+  tags:
+    - openshift
+  when: install_msa_application
+
+- name: Expose OpenShift applications
+  shell: "{{oc_command}} expose service {{ item.name }} --hostname={{ item.name }}-{{ project_name }}.{{ domain }}"
+  register: command_result
+  with_items: "{{ msa_projects }}"
+  failed_when: "'exists' not in command_result.stderr and command_result.rc != 0"
+  changed_when: "'exists' not in command_result.stderr"
+  tags:
+    - openshift
+  when: install_msa_application
+

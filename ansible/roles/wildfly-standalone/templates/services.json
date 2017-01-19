@@ -1,0 +1,17 @@
+{
+  "hello-service": {
+    "url": "http://{{ ansible_default_ipv4.address }}:8080/{{monolithic_app_context}}/rest/hello"
+  },
+  "hola-service": {
+    "url": "http://{{ ansible_default_ipv4.address }}:8080/{{monolithic_app_context}}/rest/hola",
+    "url-move": "http://hola-helloworld-msa.{{ domain }}/api/hola",
+    "url-legacy": "http://{{ ansible_default_ipv4.address }}:8080/{{monolithic_app_context}}/rest/hola"
+  },
+  "bonjour-service": {
+    "url": "http://bonjour-helloworld-msa.{{ domain }}/api/bonjour"
+  },
+  "ola-service": {
+    "url": "http://ola-helloworld-msa.{{ domain }}/api/ola"
+  }
+}
+

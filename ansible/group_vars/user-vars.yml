@@ -1,0 +1,21 @@
+    # A temporary directory for any required temporary downloads
+    # Must be a directory with read/write permissions
+    tmp_dir: /tmp
+
+    # The location of the cloned PlusOne github repository
+    # Must be a directory with read/write permissions
+    next_home: "/home/user/dev/openshift-next-demo"
+
+    # The location to install wildfly
+    # Must be a directory with read/write permissions
+    wildfly_home: /opt/testwildfly
+
+    # Automatically install the monolithic application
+    install_monolithic_application: true
+    
+    # The location to install the OpenShift Client tools (oc)
+    # Must be a directory with read/write permissions
+    oc_install: /opt/testopenshift
+
+    # Automatically install the MSA services
+    install_msa_application: true

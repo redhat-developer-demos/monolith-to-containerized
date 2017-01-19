@@ -1,0 +1,30 @@
+---
+
+- name: Check if wildfly already exists - {{wildfly_home}}/{{wildfly_base_filename}}
+  stat: path="{{wildfly_home}}/{{wildfly_base_filename}}"
+  register: p
+- debug: msg="Path exists and is a directory"
+  when: p.stat.isdir is defined and p.stat.isdir
+
+- name: Download and extract wildfly archive - {{wildfly_download_url}}
+  unarchive: 
+    src={{wildfly_download_url}}
+    dest={{wildfly_home}}
+    remote_src=yes
+  when: not p.stat.exists
+                          
+- name: Start WildFly - {{wildfly_standalone_start_cmd}}
+  shell: '{{wildfly_standalone_start_cmd}}'
+
+- name: Deploy the monolithic application
+  jboss:  src={{monolithic_app_url}}
+          deployment={{monolithic_app_deployment}} 
+          deploy_path={{wildfly_deploy_path}} 
+          state=present
+  when: install_monolithic_application
+
+- name: populate template
+  template:
+    src: services.json
+    dest: "{{wildfly_home}}/{{wildfly_base_filename}}/welcome-content/services.json"
+

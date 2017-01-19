@@ -1,0 +1,32 @@
+    wildfly_download_url: http://download.jboss.org/wildfly/10.0.0.Final/wildfly-10.0.0.Final.zip
+    wildfly_base_filename: wildfly-10.0.0.Final
+    wildfly_standalone_start_cmd: "nohup {{wildfly_home}}/{{wildfly_base_filename}}/bin/standalone.sh -b {{ansible_default_ipv4.address}} &> {{wildfly_home}}/nohup.out&"
+    wildfly_deploy_path: "{{wildfly_home}}/{{wildfly_base_filename}}/standalone/deployments"
+    monolithic_app_url: "{{next_home}}/monolithic/bin/openshift-next-monolithic.war"
+    monolithic_app_context: openshift-next-monolithic
+    monolithic_app_deployment: "{{monolithic_app_context}}.war"
+    monolithic_app_war: "{{monolithic_app_context}}.war"
+
+
+    oc_archive_name: openshift-origin-client-tools-v1.3.2-ac1d579-linux-64bit
+    oc_home: "{{oc_install}}/{{oc_archive_name}}"
+    oc_download_url: "https://github.com/openshift/origin/releases/download/v1.3.2/{{oc_archive_name}}.tar.gz"
+    oc_command: "{{oc_home}}/oc"
+    ocp_version: v3.4.0.39
+    ocp_data_dir: "{{oc_install}}/data"
+    ocp_username: "developer"
+    ocp_password: "developer"
+    openshift: "{{ansible_default_ipv4.address}}:8443"
+    project_name: helloworld-msa
+    msa_home: "{{next_home}}/msa"
+    domain: "{{ansible_default_ipv4.address}}.xip.io"
+    
+    # Project definition - You don't need to change anything here
+    msa_projects:
+      - name: hola
+        project: java
+      - name: bonjour
+        project: node
+      - name: ola
+        project: java
+
