@@ -1,4 +1,4 @@
-# OpenShift Next Demo
+# OpenShift Monolithic to Containerized
 ***
 
 ## Purpose
@@ -23,7 +23,7 @@ Now that we have the two technologies up and running side by side, we can start 
 - **Java Runtime**
 	- version 1.8
 - **Docker**
-	- version 10 <https://docs.docker.com/engine/installation/>
+	- version 12 <https://docs.docker.com/engine/installation/>
 	- add ```INSECURE_REGISTRY='--insecure-registry 172.30.0.0/16'``` to /etc/sysconfig/docker and restart Docker
 
 - **Ansible**
@@ -36,13 +36,13 @@ Now that we have the two technologies up and running side by side, we can start 
 ## Download the Demo
 Clone the github repository
 
-	$ git clone https://github.com/redhat-developer-demos/openshift-next-demo.git
+	$ git clone https://github.com/redhat-developer-demos/monolith-to-containerized.git
 
 ## Configure Demo
 To install both the legacy and OpenShift portions of the demo, some information is required.  First edit the hosts files and set the IP addresses for the hosts to install the two applications.
 
 ```bassh
-$ vi <nextROOT>/ansible/hosts
+$ vi <demoROOT>/monolith-to-containerized/ansible/hosts
 ```
 
 > [legacy-servers]  
@@ -54,16 +54,16 @@ $ vi <nextROOT>/ansible/hosts
 Now modify the following to match your environment
 
 ```bassh
-$ vi <nextROOT>/ansible/group_vars/user-vars.yaml
+$ vi <demoROOT>/monolith-to-containerized/ansible/group_vars/user-vars.yaml
 ```
 
 >  \# A temporary directory for any required temporary downloads
 >  \# Must be a directory with read/write permissions  
 >  tmp_dir: ***/tmp***
 >
->  \# The location of the cloned Next github repository
+>  \# The location of the cloned github repository
 >  \# Must be a directory with read/write permissions  
->  plusone_home: ***/home/user/development/openshift-next-demo***
+>  plusone_home: ***/home/user/development/monolith-to-containerized***
 >
 >  \# The location to install wildfly
 >  \# Must be a directory with read/write permissions  
@@ -89,10 +89,10 @@ The Playbook will perform the following
 
 1. Check if Wildfly exists at the location given above, if so, step 2 is skipped.
 2. Download and install Wildfly (<http://download.jboss.org/wildfly/10.0.0.Final/wildfly-10.0.0.Final.zip>)
-3. Deploy the precompiled war file downloaded as part of the git clone above (<nextROOT>/monolithic/bin/openshift-next-monolithic.war)
+3. Deploy the precompiled war file downloaded as part of the git clone above (<demoROOT>/monolith-to-containerized/monolithic/bin/openshift-next-monolithic.war)
 
 ```bassh
-	$ cd <nextROOT>/ansible
+	$ cd <demoROOT>/monolith-to-containerized/ansible
 	$ ansible-playbook -i hosts legacy.yml
 ```
 
@@ -110,11 +110,11 @@ The Playbook will perform the following tasks
 1. Check if the ```oc``` exists in the previously configured location, if so, step to is skipped
 2. Download and install the ```oc``` command
 3. Download and start the OpenShift docker image
-4. Deploy 3 pre-built MSA services from <nextROOT>/msa/* using the Dockerfiles and binaries contained within
+4. Deploy 3 pre-built MSA services from <demoROOT>/monolith-to-containerized/msa/* using the Dockerfiles and binaries contained within
 5. Expose the services so they are accessible
 
 ```bassh
-	$ cd <nextROOT>/ansible
+	$ cd <demoROOT>/monolith-to-containerized/ansible
 	$ ansible-playbook -i hosts openshift.yml
 ```
 
@@ -134,7 +134,7 @@ In addition to the main prerequisites above, the following are required to compi
 With Wildfly or JBoss running, execute the following
 
 ```bassh
-$ cd <nextROOT>/monolithic
+$ cd <demoROOT>/monolith-to-containerized/monolithic
 $ mvn clean install wildfly:deploy
 ```
 
